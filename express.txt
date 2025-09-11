@@ -1,0 +1,232 @@
+1. basic
+
+// index.js
+const express = require("express");
+const app = express();
+
+app.get("/", (req, res) => {
+  res.send("Hello, Express!");
+});
+
+app.listen(3000, () => console.log("Server running on http://localhost:3000"));
+
+
+🟡 2. Core Concepts
+2.1 Routing
+
+Routing defines how your server responds to client requests.
+
+app.get("/user", (req, res) => res.send("GET user"));
+app.post("/user", (req, res) => res.send("POST user"));
+app.put("/user/:id", (req, res) => res.send(`Update user ${req.params.id}`));
+app.delete("/user/:id", (req, res) => res.send(`Delete user ${req.params.id}`));
+
+2.2 Middleware
+
+    1. Functions that have access to req, res, and next.
+
+    2. Used for logging, authentication, validation, etc.
+
+// Custom middleware
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next(); // pass control
+});
+
+
+2.3 Request Data
+
+app.use(express.json()); // parse JSON body
+app.use(express.urlencoded({ extended: true })); // parse form data
+
+app.post("/login", (req, res) => {
+  console.log(req.body); // { username, password }
+  res.send("Login received");
+});
+
+
+🟠 3. Intermediate Concepts
+3.1 Router
+
+Organize routes into separate files.
+
+// routes/user.js
+const express = require("express");
+const router = express.Router();
+
+router.get("/", (req, res) => res.send("All users"));
+router.get("/:id", (req, res) => res.send(`User ${req.params.id}`));
+
+module.exports = router;
+
+// index.js
+const userRouter = require("./routes/user");
+app.use("/users", userRouter);
+
+3.2 Error Handling
+
+// Normal route
+app.get("/error", (req, res, next) => {
+  next(new Error("Something broke!"));
+});
+
+// Error-handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.message);
+  res.status(500).json({ error: err.message });
+});
+
+
+3.3 Serving Static Files
+
+app.use(express.static("public")); // public/index.html
+
+
+🔵 4. Advanced Topics
+4.1 Async/Await Error Handling
+
+const asyncHandler = (fn) => (req, res, next) => 
+  Promise.resolve(fn(req, res, next)).catch(next);
+
+app.get("/async", asyncHandler(async (req, res) => {
+  const data = await Promise.reject(new Error("Failed"));
+  res.json(data);
+}));
+
+
+4.2 Middleware Stacks
+
+  Chain multiple middleware for authentication, validation, logging, etc.
+
+  function auth(req, res, next) {
+  if (req.headers["x-api-key"] !== "secret") {
+    return res.status(403).send("Forbidden");
+  }
+  next();
+}
+
+function validate(req, res, next) {
+  if (!req.query.name) return res.status(400).send("Name required");
+  next();
+}
+
+app.get("/secure", auth, validate, (req, res) => {
+  res.send(`Welcome ${req.query.name}`);
+});
+
+4.3 RESTful APIs with Controllers
+
+Separate routes and controllers.
+
+// controllers/userController.js
+exports.getUsers = (req, res) => res.json([{ id: 1, name: "John" }]);
+
+// routes/user.js
+const express = require("express");
+const router = express.Router();
+const { getUsers } = require("../controllers/userController");
+
+router.get("/", getUsers);
+module.exports = router;
+
+
+4.4 Security Best Practices
+
+    1. Use helmet for HTTP headers.
+
+    2. Use cors for cross-origin requests.
+
+    3. Use express-rate-limit to prevent brute-force attacks.
+
+const helmet = require("helmet");
+const cors = require("cors");
+const rateLimit = require("express-rate-limit");
+
+app.use(helmet());
+app.use(cors());
+app.use(rateLimit({ windowMs: 60 * 1000, max: 100 }));
+
+
+4.5 Authentication (JWT)
+
+const jwt = require("jsonwebtoken");
+const secret = "mysecret";
+
+// Login
+app.post("/login", (req, res) => {
+  const token = jwt.sign({ user: "john" }, secret, { expiresIn: "1h" });
+  res.json({ token });
+});
+
+// Protected route
+app.get("/profile", (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.sendStatus(401);
+  try {
+    const user = jwt.verify(token, secret);
+    res.json(user);
+  } catch {
+    res.sendStatus(403);
+  }
+});
+
+
+4.6 Express with Databases
+
+Use mongoose for MongoDB.
+
+Use sequelize / prisma for SQL.
+
+Example with Mongoose:
+
+const mongoose = require("mongoose");
+mongoose.connect("mongodb://localhost:27017/test");
+
+const UserSchema = new mongoose.Schema({ name: String });
+const User = mongoose.model("User", UserSchema);
+
+app.get("/users", async (req, res) => {
+  const users = await User.find();
+  res.json(users);
+});
+
+
+🔴 5. Pro Level (Production Ready)
+5.1 Project Structure
+
+/project
+ ├── index.js
+ ├── routes/
+ │    └── user.js
+ ├── controllers/
+ │    └── userController.js
+ ├── models/
+ │    └── user.js
+ ├── middleware/
+ │    └── auth.js
+
+
+5.2 Logging
+
+Use winston or morgan for logging.
+
+const morgan = require("morgan");
+app.use(morgan("combined"));
+
+
+5.3 Testing Express APIs
+
+Use supertest + jest/mocha.
+
+const request = require("supertest");
+const app = require("../index");
+
+describe("GET /", () => {
+  it("should return Hello", async () => {
+    const res = await request(app).get("/");
+    expect(res.text).toBe("Hello, Express!");
+  });
+});
+
+
+=============================JWT=============================================

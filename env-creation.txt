@@ -1,0 +1,114 @@
+🛠 1. Create an .env file
+
+In your project root folder, create a file named .env:
+
+
+# Server configuration
+PORT=4000
+NODE_ENV=development
+
+# Database
+DB_HOST=localhost
+DB_USER=myuser
+DB_PASS=mypassword
+
+# Secrets
+JWT_SECRET=supersecretkey
+
+
+⚠️ Never commit .env to GitHub!
+Add it to .gitignore:
+
+.env
+
+
+🛠 2. Install dotenv
+
+This package loads .env into process.env.
+
+npm install dotenv
+
+
+🛠 3. Load .env in your App
+
+At the top of server.js:
+
+require("dotenv").config();
+const express = require("express");
+
+const app = express();
+
+// Read environment variables
+const PORT = process.env.PORT || 3000;
+const NODE_ENV = process.env.NODE_ENV;
+const DB_USER = process.env.DB_USER;
+
+app.get("/", (req, res) => {
+  res.send(`Running in ${NODE_ENV} mode on port ${PORT}, DB User: ${DB_USER}`);
+});
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+});
+
+
+🛠 4. Use Different .env Files for Each Mode
+
+You can create separate files:
+
+.env.development
+
+.env.production
+
+.env.test
+
+Example .env.production:
+
+PORT=8080
+NODE_ENV=production
+DB_HOST=prod-db-host
+DB_USER=prod-user
+DB_PASS=prod-password
+
+
+👉 Load them using scripts in package.json:
+
+"scripts": {
+  "dev": "cross-env NODE_ENV=development nodemon server.js",
+  "prod": "cross-env NODE_ENV=production node server.js",
+  "test": "cross-env NODE_ENV=test jest"
+}
+
+
+With dotenv-flow
+, you can even auto-manage multiple .env.* files:
+
+npm install dotenv-flow
+
+Then in server.js:
+
+require("dotenv-flow").config();
+
+
+🛠 5. Checking Env in Code
+
+if (process.env.NODE_ENV === "development") {
+  console.log("Debug mode enabled 🛠");
+}
+
+if (process.env.NODE_ENV === "production") {
+  console.log("Optimized for production 🚀");
+}
+
+
+✅ Summary:
+
+    1. Define variables in .env
+
+    2. Load with dotenv
+
+    3. Use process.env.VARIABLE
+
+    4. Set different env files for dev/prod/test
+
+    5. Never commit .env to GitHub

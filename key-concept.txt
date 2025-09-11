@@ -1,0 +1,57 @@
+🟡 2. Express.js API Key Example
+
+
+const express = require("express");
+const app = express();
+
+// ✅ List of valid API keys
+const VALID_KEYS = [
+  "key123", 
+  "key456", 
+  "key789"
+];
+
+// Middleware to check API key
+function checkApiKey(req, res, next) {
+  const apiKey = req.headers["x-api-key"]; // client sends in header
+  if (!apiKey || !VALID_KEYS.includes(apiKey)) {
+    return res.status(403).json({ error: "Forbidden - Invalid API Key" });
+  }
+  next(); // allow access
+}
+
+app.get("/secure-data", checkApiKey, (req, res) => {
+  res.json({ message: "This is protected data!" });
+});
+
+app.listen(3000, () => console.log("API running on http://localhost:3000"));
+
+
+🟠 3. Flutter Mobile App (Using .env)
+.env file in Flutter
+
+API_KEY=key123
+API_BASE_URL=http://localhost:3000
+
+Flutter Request
+
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
+
+Future<void> fetchSecureData() async {
+  final apiKey = dotenv.env['API_KEY']!;
+  final baseUrl = dotenv.env['API_BASE_URL']!;
+
+  final response = await http.get(
+    Uri.parse('$baseUrl/secure-data'),
+    headers: {
+      "x-api-key": apiKey,
+    },
+  );
+
+  if (response.statusCode == 200) {
+    print("Data: ${response.body}");
+  } else {
+    print("Error: ${response.body}");
+  }
+}

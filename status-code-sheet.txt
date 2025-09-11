@@ -1,0 +1,65 @@
+🚀 HTTP Status Codes Cheat Sheet (Express.js)
+
+  -----------------------------------------------------------------------------------
+  Code       Meaning          Use Case (Express.js)
+  ---------- ---------------- -------------------------------------------------------
+  200        OK               res.status(200).send("Success");
+
+  201        Created          res.status(201).json({ msg: "Created" });
+
+  204        No Content       res.status(204).send();
+
+  301        Moved            res.redirect(301, "/new-url");
+             Permanently      
+
+  302        Found (Redirect) res.redirect(302, "/temp-url");
+
+  304        Not Modified     (Used with caching, automatic)
+
+  400        Bad Request      res.status(400).json({ error: "Invalid input" });
+
+  401        Unauthorized     res.status(401).json({ error: "Login required" });
+
+  403        Forbidden        res.status(403).json({ error: "Forbidden" });
+
+  404        Not Found        res.status(404).send("Not found");
+
+  409        Conflict         res.status(409).json({ error: "Already exists" });
+
+  422        Unprocessable    res.status(422).json({ error: "Validation failed" });
+             Entity           
+
+  500        Internal Server  res.status(500).send("Server error");
+             Error            
+
+  502        Bad Gateway      (Upstream server error)
+
+  503        Service          (Server overloaded or down)
+             Unavailable      
+
+  504        Gateway Timeout  (Upstream service timeout)
+  -----------------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+📌 How to use in Express.js
+
+    app.get("/success", (req, res) => {
+      res.status(200).send("OK");
+    });
+
+    app.post("/create", (req, res) => {
+      res.status(201).json({ message: "Created successfully" });
+    });
+
+    app.get("/forbidden", (req, res) => {
+      res.status(403).json({ error: "Access denied" });
+    });
+
+    app.get("/not-found", (req, res) => {
+      res.status(404).send("Page not found");
+    });
+
+    app.get("/error", (req, res) => {
+      res.status(500).send("Internal server error");
+    });
