@@ -1,0 +1,145 @@
+
+====================
+ SEQUELIZE ORM CHEAT SHEET
+====================
+
+1. CONNECT TO DATABASE
+----------------------
+const { Sequelize } = require("sequelize");
+const sequelize = new Sequelize("db", "user", "pass", {
+  host: "localhost",
+  dialect: "postgres",
+  logging: false,
+});
+
+sequelize.authenticate()
+  .then(() => console.log("✅ Connected"))
+  .catch(err => console.error("❌ Error:", err));
+
+
+2. DEFINE MODEL
+---------------
+const { DataTypes } = require("sequelize");
+const User = sequelize.define("User", {
+  username: { type: DataTypes.STRING, allowNull: false, unique: true },
+  email: { type: DataTypes.STRING, validate: { isEmail: true } },
+  password: { type: DataTypes.STRING, allowNull: false }
+}, {
+  timestamps: true,
+  paranoid: true
+});
+
+
+3. DATA TYPES
+-------------
+DataTypes.STRING, DataTypes.STRING(100), DataTypes.TEXT
+DataTypes.INTEGER, DataTypes.BIGINT, DataTypes.FLOAT, DataTypes.DECIMAL(10,2)
+DataTypes.BOOLEAN, DataTypes.DATE, DataTypes.UUID, DataTypes.JSON
+DataTypes.ENUM("A","B")
+
+
+4. SYNC TABLES
+--------------
+sequelize.sync({ force: true })  // drop + recreate
+sequelize.sync({ alter: true })  // safe update
+
+
+5. CRUD
+-------
+await User.create({ username: "amit", email: "a@mail.com", password: "123" });
+await User.findAll();
+await User.findOne({ where: { username: "amit" } });
+await User.update({ password: "new" }, { where: { id: 1 } });
+await User.destroy({ where: { id: 1 } });
+
+
+6. OPERATORS
+------------
+const { Op } = require("sequelize");
+await User.findAll({
+  where: {
+    age: { [Op.gte]: 18 },
+    email: { [Op.like]: "%@gmail.com" },
+    id: { [Op.in]: [1,2,3] }
+  }
+});
+
+
+7. ASSOCIATIONS
+---------------
+One-to-One:
+User.hasOne(Profile);
+Profile.belongsTo(User);
+
+One-to-Many:
+User.hasMany(Message);
+Message.belongsTo(User);
+
+Many-to-Many:
+User.belongsToMany(Group, { through: "UserGroups" });
+Group.belongsToMany(User, { through: "UserGroups" });
+
+
+8. EAGER LOADING
+----------------
+await User.findAll({ include: Profile });
+await User.findOne({ include: [{ model: Message }] });
+
+
+9. VALIDATIONS
+--------------
+const Product = sequelize.define("Product", {
+  price: { type: DataTypes.FLOAT, validate: { min: 0 } }
+});
+
+
+10. HOOKS
+---------
+User.beforeCreate(async (user) => {
+  user.password = await bcrypt.hash(user.password, 10);
+});
+
+
+11. TRANSACTIONS
+----------------
+const t = await sequelize.transaction();
+try {
+  const user = await User.create({ username: "test" }, { transaction: t });
+  await Message.create({ text: "hello", UserId: user.id }, { transaction: t });
+  await t.commit();
+} catch (err) {
+  await t.rollback();
+}
+
+
+12. RAW QUERIES
+---------------
+const [results, metadata] = await sequelize.query(
+  "SELECT * FROM Users WHERE id = ?", { replacements: [1] }
+);
+
+
+13. SCOPES
+----------
+const User = sequelize.define("User", { username: DataTypes.STRING }, {
+  defaultScope: { where: { active: true } },
+  scopes: { admins: { where: { role: "admin" } } }
+});
+await User.scope("admins").findAll();
+
+
+14. MIGRATIONS & SEEDERS (CLI)
+------------------------------
+npx sequelize-cli init
+npx sequelize-cli migration:generate --name create-users
+npx sequelize-cli db:migrate
+npx sequelize-cli db:seed:all
+
+
+15. INDEXES & CONSTRAINTS
+-------------------------
+const Post = sequelize.define("Post", {
+  title: { type: DataTypes.STRING, unique: true }
+}, {
+  indexes: [{ unique: true, fields: ["title"] }]
+});

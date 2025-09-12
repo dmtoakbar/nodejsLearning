@@ -1,0 +1,74 @@
+====debian 12 ============== start postgres=========
+2️⃣ Start and Enable PostgreSQL Service
+Ensure PostgreSQL is running:
+	sudo systemctl start postgresql
+	sudo systemctl enable postgresql
+Check the status:
+        sudo systemctl status postgresql
+3️⃣ Switch to the PostgreSQL User
+PostgreSQL creates a default system user called postgres. Switch to it:
+	sudo -i -u postgres
+4️⃣ Open PostgreSQL Prompt
+Inside the postgres user shell, run:
+	psql
+1️⃣ Stop PostgreSQL
+Run:
+	sudo systemctl stop postgresql
+4️⃣ Prevent PostgreSQL from Starting on Boot
+If you don’t want PostgreSQL to start automatically:
+	sudo systemctl disable postgresql
+To re-enable later:
+sudo systemctl enable postgresql
+
+
+PostgreSQL Database Commands Cheat Sheet
+========================================
+
+## Connecting to PostgreSQL
+sudo -i -u postgres
+psql
+psql -U username -d database_name -h localhost
+
+## Listing
+\l               -- List all databases
+\dt              -- List all tables in the current database
+\du              -- List all roles/users
+\dn              -- List schemas
+\dv              -- List views
+\df              -- List functions
+
+## Database Management
+CREATE DATABASE dbname;
+DROP DATABASE dbname;
+
+## User Management
+CREATE USER username WITH ENCRYPTED PASSWORD 'password';
+DROP USER username;
+ALTER USER username WITH PASSWORD 'newpassword';
+GRANT ALL PRIVILEGES ON DATABASE dbname TO username;
+REVOKE ALL PRIVILEGES ON DATABASE dbname FROM username;
+
+## Connection
+\c dbname        -- Connect to a database
+\conninfo        -- Show current connection info
+
+## Table Management
+CREATE TABLE table_name (
+    id SERIAL PRIMARY KEY,
+    column1 TEXT,
+    column2 INT
+);
+\d table_name    -- Describe a table (schema + columns)
+DROP TABLE table_name;
+
+## Query Examples
+SELECT * FROM table_name;
+INSERT INTO table_name (column1, column2) VALUES ('value1', 123);
+UPDATE table_name SET column1='newvalue' WHERE id=1;
+DELETE FROM table_name WHERE id=1;
+
+## Meta Commands
+\?              -- List all psql commands
+\q              -- Quit psql
+\pset pager off -- Disable pager (avoid (END) issue)
+

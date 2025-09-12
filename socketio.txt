@@ -1,0 +1,4 @@
+npm install express socket.io cors dotenv pg pg-hstore sequelize
+    1. pg → PostgreSQL driver
+    2. pg-hstore → for Sequelize
+    3. sequelize → ORM for PostgreSQL
