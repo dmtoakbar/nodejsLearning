@@ -7,11 +7,15 @@ const db = require("./models");
 const authRoutes = require("./routes/auth");
 const uploadRoutes = require("./routes/upload");
 const authMiddleware = require("./middlewares/auth");
+const notificationRoute = require("./notification/register-for-notification");
+const sendPushNotification = require("./notification/send-broadcast");
 
 dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use("/register-for-notification", notificationRoute);
+app.use("/send-broadcast", sendPushNotification);
 app.use("/uploads", express.static("uploads"));
 app.use("/auth", authRoutes);
 app.use("/upload", authMiddleware, uploadRoutes);

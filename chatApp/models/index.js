@@ -13,5 +13,6 @@ db.sequelize = sequelize;
 
 db.User = require("./user")(sequelize, Sequelize);
 db.Message = require("./message")(sequelize, Sequelize);
+db.Notification = require("./notification")(sequelize, Sequelize);
 
 module.exports = db;
