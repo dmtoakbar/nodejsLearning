@@ -13,6 +13,7 @@ if (!admin.apps.length) {
 // Function to send notification
 function sendPushNotification(token, title, body) {
   const message = {
+    token: token,
     notification: {
       title: title,
       body: body,
@@ -20,9 +21,23 @@ function sendPushNotification(token, title, body) {
     data: {
       type: "chat",
       chatId: "123",
-      userId: "456"
+      userId: "456",
     },
-    token: token,
+    android: {
+      priority: "high", // important for delivery
+    },
+    apns: {
+      payload: {
+        aps: {
+          contentAvailable: true,
+          alert: {
+            title: title,
+            body: body,
+          },
+          sound: "default", // ensures sound/alert
+        },
+      },
+    },
   };
 
   return admin.messaging().send(message)
